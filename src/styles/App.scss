@@ -1,0 +1,12 @@
+// core
+@import 'core/_reset';
+@import '../../node_modules/bootstrap/scss/bootstrap';
+@import 'core/_variables';
+@import 'core/_typography';
+@import 'core/_mixins';
+
+html, * {
+  font-family: $mainFont;
+  font-weight: 300;
+  font-size: 1em;
+}
