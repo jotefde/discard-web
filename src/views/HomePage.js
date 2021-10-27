@@ -3,8 +3,8 @@ import TextField from 'components/organisms/TextField/TextField';
 
 const HomePage = ({socket}) => {
     return <>
-        <h1 className="test">Home</h1>
-        <TextField socket={socket}/>
+        <h1 className="test">TAKO</h1>
+        <TextField roomId={1}/>
     </>
 };
 

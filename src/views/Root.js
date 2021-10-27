@@ -5,9 +5,7 @@ import { routes } from 'routes';
 import store from 'store';
 import MainTemplate from 'templates/MainTemplate';
 import HomePage from 'views/HomePage';
-import io from "socket.io-client";
-
-const socket = io.connect('/');
+import 'views/main.scss';
 
 const Root = () => (
   <Provider store={store}>
@@ -15,7 +13,7 @@ const Root = () => (
       <MainTemplate>
         <Switch>
           <Route exact path={routes.root} render={() => <Redirect to="/Home" />} />
-          <Route exact path={routes.home} component={()=> <HomePage socket={socket}/>} />
+          <Route exact path={routes.home} component={()=> <HomePage/>} />
         </Switch>
       </MainTemplate>
     </BrowserRouter>

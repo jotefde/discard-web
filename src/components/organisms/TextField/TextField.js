@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import withContext from 'hoc/withContext';
 import "./TextField.scss"
+import io from "socket.io-client";
 
 
 class TextField extends React.Component
@@ -10,44 +11,57 @@ class TextField extends React.Component
         this.state = { content: "" };
     }
     componentDidMount() {
-        this.socket = this.props.socket;
+        this.socket = io.connect(`/`);
         this.socket.on("init",(data)=> {
             this.setState({content: data });
         });
-        this.socket.on("processChar",({char,pos}) => {
+        this.socket.on("processString",({string, pos}) => {
             let { content } = this.state;
-            content = [content.slice(0, pos), char, content.slice(pos)].join('');
-            console.log("processChar: ",content);
+            content = [content.slice(0, pos), string, content.slice(pos)].join('');
             this.setState({ content });
         });
     }
 
-    sendChar = (char,pos) => {
-        this.socket.emit("newChar", { char, pos });
-    }
-    textInput = (e) => {
+    sendString = (string, pos) =>  this.socket.emit("newString", { string, pos });
+
+    textInputHandler = (e) => {
         switch(e.key){
             case "Delete":
             case "Backspace":
                 e.preventDefault();
                 break
             case "Enter":
-                this.sendChar('\n', e.target.selectionStart);
+                this.sendString('\n', e.target.selectionStart);
                 break
             default:
+                if(e.ctrlKey)
+                    return false;
                 if(e.key.length === 1)
-                    this.sendChar(e.key, e.target.selectionStart);
-                console.log(e.key);
+                    this.sendString(e.key, e.target.selectionStart);
             //sendChar(e.key, e.target.selectionStart);
         }
         return true;
     }
 
+    pasteHandler = e => {
+        let clipboardData, pastedData;
+        const { selectionStart, selectionEnd } = document.querySelector("#TextField");
+        if(selectionStart !== selectionEnd)
+        {
+            e.stopPropagation();
+            e.preventDefault();
+            return false;
+        }
+        clipboardData = e.clipboardData || window.clipboardData;
+        pastedData = clipboardData.getData('text/plain');
+        this.sendString(pastedData, selectionStart);
+    };
+
     render()
     {
         console.log(this.state.content);
         return <>
-       <textarea id="TextField" rows={20} cols={150} onKeyDown={this.textInput} defaultValue={this.state.content}>
+       <textarea id="TextField" rows={20} style={{width: '100%'}} onKeyDown={this.textInputHandler} onPaste={this.pasteHandler} onDrop={e => e.preventDefault()} wrap={true} defaultValue={this.state.content}>
        </textarea>
         </>
     }
